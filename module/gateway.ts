@@ -1,4 +1,4 @@
-const config = JSON.parse( await Deno.readTextFile('../config.json'));
+const config = JSON.parse( await Deno.readTextFile('./config.json'));
 
 enum GatewayOpcodes {
   Dispatch = 0,
@@ -20,7 +20,7 @@ interface GatewayOptions {
   compress?: "zlib-stream";
 }
 
-class Gateway extends EventTarget {
+export class Gateway extends EventTarget {
     private readonly token: string;
     private connection: WebSocket;
     private sequenceNumber: number | null = null;
@@ -118,17 +118,3 @@ class Gateway extends EventTarget {
         }));
     }
 }
-
-const gateway = new Gateway(config.token);
-gateway.addEventListener("READY", (event) => {
-    console.log("logged in");
-});
-
-gateway.addEventListener("MESSAGE_CREATE", (customEvent) => {
-    let event = customEvent as CustomEvent;
-    let content = event.detail.content;
-    if (!content.startsWith(config.prefix)) return;
-    if (content === config.prefix + 'joinvc') {
-        gateway.joinVoiceChannel(event.detail.guild_id, '922807165079654420');
-    }
-});
